@@ -84,7 +84,10 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;min-height:100vh;padding:12
 <div class="pb-wrap"><div class="pb" id="pb" style="width:0%"></div></div>
 <div class="q-card"><div class="q-num" id="qn"></div><div class="q-text" id="qt"></div></div>
 <div class="opts" id="opts"></div>
-<div class="nw" id="nw"><button class="btn" id="nb" onclick="nextQ()">Следующий вопрос</button></div>
+<div class="nw" id="nw" style="display:flex;gap:10px">
+<button class="btn secondary" id="pb-btn" onclick="prevQ()" style="margin-top:0;flex:0 0 auto;width:auto;padding:16px 20px">← Назад</button>
+<button class="btn" id="nb" onclick="nextQ()" style="margin-top:0;flex:1">Следующий вопрос</button>
+</div>
 </div>
 <div id="sr" class="screen">
 <div class="rc">
@@ -166,8 +169,9 @@ function updTmr(){
 }
 function makeOptHandler(opt,b,cor){return function(){selAns(opt,b,cor);};}
 function renderQ(){
-  ansd=false;
-  var q=TQ[cur],od,b,sp,nw,i;
+  var q=TQ[cur],od,b,sp,nw,pbtn,i,already;
+  already=ua[cur];
+  ansd=!!already;
   document.getElementById('ptxt').textContent='Вопрос '+(cur+1)+' из '+TOTAL;
   document.getElementById('pb').style.width=(cur/TOTAL*100)+'%';
   document.getElementById('qn').textContent='Вопрос '+(cur+1);
@@ -178,10 +182,23 @@ function renderQ(){
     b.className='opt';
     sp=document.createElement('span');sp.className='opt-l';sp.textContent=LT[i];
     b.appendChild(sp);b.appendChild(document.createTextNode(q.opts[i]));
-    b.onclick=makeOptHandler(q.opts[i],b,q.cor);
+    if(already){
+      b.disabled=true;
+      if(q.opts[i]===q.cor)b.classList.add('correct');
+      if(q.opts[i]===already.chosen&&!already.ok)b.classList.add('wrong');
+    }else{
+      b.onclick=makeOptHandler(q.opts[i],b,q.cor);
+    }
     od.appendChild(b);
   }
-  nw=document.getElementById('nw');nw.style.display='none';
+  nw=document.getElementById('nw');
+  pbtn=document.getElementById('pb-btn');
+  if(already){
+    nw.style.display='flex';
+  }else{
+    nw.style.display='none';
+  }
+  if(cur===0){pbtn.style.display='none';}else{pbtn.style.display='block';}
   document.getElementById('nb').textContent=(cur===TOTAL-1)?'Завершить тест':'Следующий вопрос';
 }
 function selAns(chosen,btn,cor){
@@ -199,6 +216,7 @@ function selAns(chosen,btn,cor){
   document.getElementById('nw').style.display='block';
 }
 function nextQ(){cur++;if(cur>=TOTAL)finish(false);else renderQ();}
+function prevQ(){if(cur>0){cur--;renderQ();}}
 function finish(tout){
   clearInterval(ti);
   var q,passed,pct,rs,sb,errs=[],html='',e,i;
