@@ -193,13 +193,12 @@ function renderQ(){
   }
   nw=document.getElementById('nw');
   pbtn=document.getElementById('pb-btn');
-  if(already){
-    nw.style.display='flex';
-  }else{
-    nw.style.display='none';
-  }
+  nw.style.display='flex';
   if(cur===0){pbtn.style.display='none';}else{pbtn.style.display='block';}
-  document.getElementById('nb').textContent=(cur===TOTAL-1)?'Завершить тест':'Следующий вопрос';
+  var nbtn=document.getElementById('nb');
+  nbtn.textContent=(cur===TOTAL-1)?'Завершить тест':'Следующий вопрос';
+  nbtn.disabled=!already;
+  nbtn.style.opacity=already?'1':'0.4';
 }
 function selAns(chosen,btn,cor){
   if(ansd)return;ansd=true;
@@ -213,7 +212,7 @@ function selAns(chosen,btn,cor){
     if(txt===cor)b.classList.add('correct');
   }
   if(!ok)btn.classList.add('wrong');
-  document.getElementById('nw').style.display='block';
+  var nbtn=document.getElementById('nb');nbtn.disabled=false;nbtn.style.opacity='1';
 }
 function nextQ(){cur++;if(cur>=TOTAL)finish(false);else renderQ();}
 function prevQ(){if(cur>0){cur--;renderQ();}}
